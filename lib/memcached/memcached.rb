@@ -499,12 +499,13 @@ Please note that when <tt>:no_block => true</tt>, update methods do not raise on
       value, key, flags, ret = Lib.memcached_fetch_rvalue(@struct)
       while ret != 21 do # Lib::MEMCACHED_END
         if ret == 0 # Lib::MEMCACHED_SUCCESS
-          hash[key] = (marshal ? Marshal.load(value) : value)
+          hash[key] = value
         elsif ret != 16 # Lib::MEMCACHED_NOTFOUND
           check_return_code(ret, key)
         end
         value, key, flags, ret = Lib.memcached_fetch_rvalue(@struct)
       end
+      hash.each{ |k,v| hash[k] = Marshal.load(v) } if marshal
       hash
     else
       # Single get
